@@ -148,7 +148,7 @@ Issues y PRs bienvenidos. El código es un único `server.js` sin dependencias: 
 ### 👤 Autor
 
 **Gustavo Gonzalez** — [github.com/gustavosergiogonzalez/arena-bridge](https://github.com/gustavosergiogonzalez/arena-bridge)
-Construido con ayuda del Agent Mode de Arena.ai (un chat que programó otro chatose que programa chats 🪄)
+Construido con ayuda del Agent Mode de Arena.ai (un chat que programó a otro chat que programa chats 🪄)
 
 ### 📜 Licencia
 
