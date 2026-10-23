@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+# 🌉 Arena Bridge 0.4 — lanzador y configurador (paquete .deb)
+set -u
+
+APP_DIR="${ARENA_BRIDGE_HOME:-/opt/arena-bridge}"
+CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/arena-bridge"
+ENV_FILE="$CONFIG_DIR/.env"
+BRAINS_FILE="$CONFIG_DIR/backends.json"
+VERSION="0.4.0"
+
+ensure_config() {
+  [ -d "$CONFIG_DIR" ] || mkdir -p "$CONFIG_DIR"
+  if [ ! -f "$ENV_FILE" ]; then
+    cp "$APP_DIR/.env.example" "$ENV_FILE" 2>/dev/null
+    chmod 600 "$ENV_FILE" 2>/dev/null
+    FIRST_RUN=1
+  fi
+}
+
+get_port() {
+  local p
+  p=$(grep -E '^[[:space:]]*PORT=' "$ENV_FILE" 2>/dev/null | tail -1 | cut -d= -f2 | tr -d ' "\x27')
+  echo "${PORT:-${p:-4010}}"
+}
+
+port_open() { (exec 3<>/dev/tcp/127.0.0.1/"$1") 2>/dev/null && exec 3>&- 3<&-; }
+
+case "${1:-}" in
+  -v|--version) echo "Arena Bridge $VERSION"; exit 0 ;;
+  -h|--help)
+    echo "🌉 Arena Bridge $VERSION — tu gateway OpenAI-compatible multi-cerebro"
+    echo ""
+    echo "Uso: arena-bridge [opción]"
+    echo "  (sin args)         Levanta el bridge en primer plano (Ctrl+C para frenar)"
+    echo "  --setup            Edita .env (puerto, keys secretas \${VAR})"
+    echo "  --setup-backends   Edita backends.json (el ejército de cerebros) y registra VS Code"
+    echo "  --status           Estado, modo y cerebros activos"
+    echo "  --install-vscode   Registra/actualiza los modelos en VS Code"
+    echo "  --remove-vscode    Quita los modelos de VS Code"
+    echo "  --version          Versión"
+    exit 0 ;;
+  --setup)
+    ensure_config
+    echo "📝 Editando $ENV_FILE (puerto, keys, modo legacy)"
+    "${EDITOR:-nano}" "$ENV_FILE"
+    echo "✔ Guardado. Tip: el ejército se declara con --setup-backends"
+    exit 0 ;;
+  --setup-backends)
+    ensure_config
+    if [ ! -f "$BRAINS_FILE" ]; then
+      cp "$APP_DIR/backends.json" "$BRAINS_FILE" 2>/dev/null
+      chmod 600 "$BRAINS_FILE" 2>/dev/null
+      echo "🆕 Creé $BRAINS_FILE desde el ejemplo (3 cerebros NIM + 1 local)."
+    fi
+    "${EDITOR:-nano}" "$BRAINS_FILE"
+    echo "✔ Cerebros guardados."
+    echo ""
+    echo "🔗 Registrando modelos en VS Code…"
+    node "$APP_DIR/vscode-register.js" || true
+    echo ""
+    echo "Reiniciá el servicio para aplicar:  systemctl --user restart arena-bridge"
+    exit 0 ;;
+  --install-vscode)
+    node "$APP_DIR/vscode-register.js"; exit $? ;;
+  --remove-vscode)
+    node "$APP_DIR/vscode-register.js" --remove; exit $? ;;
+  --status)
+    ensure_config; P=$(get_port)
+    if port_open "$P"; then
+      echo "🟢 Corriendo en puerto $P:"
+      curl -s --max-time 3 "http://127.0.0.1:$P/health"; echo ""
+    else
+      echo "⚫ Detenido (puerto $P libre). Servicio: systemctl --user start arena-bridge"
+    fi
+    exit 0 ;;
+esac
+
+ensure_config
+P=$(get_port)
+
+if port_open "$P"; then
+  echo "🌉 Arena Bridge YA está corriendo en el puerto $P ✅"
+  [ -t 0 ] && read -n1 -r -p "Tocá cualquier tecla para cerrar..." || true
+  exit 0
+fi
+
+if [ "${FIRST_RUN:-0}" = "1" ]; then
+  echo "🆕 Primera ejecución: creé $ENV_FILE (MODO MOCK)."
+  echo "   Cerebros: arena-bridge --setup-backends   (y keys en --setup)"
+  echo ""
+fi
+
+echo "🌉 Levantando Arena Bridge en el puerto $P…  (Ctrl+C para frenar)"
+node "$APP_DIR/server.js"
+code=$?
+echo ""
+echo "⛔ El bridge se detuvo (código $code)."
+[ -t 0 ] && read -n1 -r -p "Tocá cualquier tecla para cerrar..." || true
+exit "$code"

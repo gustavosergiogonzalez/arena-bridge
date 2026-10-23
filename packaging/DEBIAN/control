@@ -1,0 +1,14 @@
+Package: arena-bridge
+Version: 0.4.0
+Section: net
+Priority: optional
+Architecture: all
+Depends: nodejs (>= 18), curl
+Maintainer: Gustavo Gonzalez
+Homepage: https://github.com/gustavosergiogonzalez/arena-bridge
+Description: Gateway local OpenAI-compatible multi-cerebro para Copilot y Roo Code
+ Arena Bridge expone /v1/chat/completions en localhost:4010 y rutea al backend
+ LLM que elijas: NVIDIA NIM, Ollama local, OpenRouter, Groq, Gemini o la
+ futura API de Arena. Multi-cerebro con failover, registro automático del
+ modelo en VS Code (chatLanguageModels.json) y limpieza al desinstalar.
+ Zero-dependency Node server + lanzador de escritorio y CLI.

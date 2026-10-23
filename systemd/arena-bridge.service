@@ -1,0 +1,17 @@
+# Servicio systemd de USUARIO — autoarranque y auto-reinicio
+# Instalación:
+#   cp arena-bridge.service ~/.config/systemd/user/
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now arena-bridge
+#   loginctl enable-linger $USER   (opcional: corre también sin sesión gráfica)
+[Unit]
+Description=Arena Bridge - gateway LLM personal
+After=network-online.target
+
+[Service]
+ExecStart=/usr/bin/node /opt/arena-bridge/server.js
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target

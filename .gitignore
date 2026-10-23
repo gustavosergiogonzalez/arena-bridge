@@ -1,0 +1,15 @@
+# 👇 SECRETOS Y RUNTIME — jamás commitear
+.env
+backends.json
+usage.jsonl
+*.log
+
+# build artifacts
+build/
+dist/
+*.deb
+*.zip
+
+# misc
+node_modules/
+tmp/

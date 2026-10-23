@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Arena Bridge
+GenericName=LLM Gateway
+Comment=Tu API OpenAI-compatible para Copilot / Roo Code
+Exec=arena-bridge
+Icon=arena-bridge
+Terminal=true
+Categories=Development;Utility;
+Keywords=ai;llm;bridge;copilot;api;
+StartupNotify=true

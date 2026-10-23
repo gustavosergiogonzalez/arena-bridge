@@ -1,0 +1,50 @@
+{
+  "_doc": "Arena Bridge multi-cerebro. Copiá a ~/.config/arena-bridge/backends.json (o arena-bridge --setup-backends). api_key admite \"${VAR}\" expandida desde .env. El id define el modelo en el picker: arena-bridge/<id>. arena-bridge/auto = el primero de la lista. failover:true = si un cerebro tira 429/5xx o no responde, prueba el siguiente.",
+  "failover": true,
+  "backends": [
+    {
+      "id": "fast",
+      "name": "Arena Bridge ⚡ GLM Flash",
+      "base_url": "https://integrate.api.nvidia.com/v1",
+      "api_key": "${NIM_API_KEY}",
+      "model": "z-ai/glm-5.3-flash",
+      "max_input_tokens": 131000,
+      "max_output_tokens": 16000,
+      "tool_calling": true,
+      "vision": false
+    },
+    {
+      "id": "pro",
+      "name": "Arena Bridge 🧠 Kimi K2.6",
+      "base_url": "https://integrate.api.nvidia.com/v1",
+      "api_key": "${NIM_API_KEY}",
+      "model": "moonshotai/kimi-k2.6",
+      "max_input_tokens": 131000,
+      "max_output_tokens": 16000,
+      "tool_calling": true,
+      "vision": false
+    },
+    {
+      "id": "coder",
+      "name": "Arena Bridge 👨‍💻 Codestral",
+      "base_url": "https://integrate.api.nvidia.com/v1",
+      "api_key": "${NIM_API_KEY}",
+      "model": "mistralai/codestral-22b-instruct-v0.1",
+      "max_input_tokens": 131000,
+      "max_output_tokens": 16000,
+      "tool_calling": true,
+      "vision": false
+    },
+    {
+      "id": "local",
+      "name": "Arena Bridge 🏠 Ollama Local",
+      "base_url": "http://127.0.0.1:11434/v1",
+      "api_key": "ollama",
+      "model": "qwen2.5-coder:7b",
+      "max_input_tokens": 32000,
+      "max_output_tokens": 8000,
+      "tool_calling": true,
+      "vision": false
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+#!/bin/sh
+# prerm — Arena Bridge: limpieza ANTES de quitar los archivos del paquete
+# (en postrm ya no existiría /opt/arena-bridge/vscode-register.js)
+set -e
+if [ "$1" = "remove" ]; then
+  TARGET_USER="${SUDO_USER:-}"
+  if [ -n "$TARGET_USER" ] && [ "$TARGET_USER" != "root" ]; then
+    T_HOME="$(getent passwd "$TARGET_USER" | cut -d: -f6)"
+    su -s /bin/sh -c "HOME='$T_HOME' node /opt/arena-bridge/vscode-register.js --remove" "$TARGET_USER" || true
+  fi
+fi
+# La config del usuario (~/.config/arena-bridge) se conserva a propósito.
+exit 0

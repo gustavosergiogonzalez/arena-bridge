@@ -1,0 +1,30 @@
+#!/bin/sh
+# postinst — Arena Bridge 0.3
+set -e
+
+if command -v gtk-update-icon-cache >/dev/null 2>&1; then
+  gtk-update-icon-cache -q -t -f /usr/share/icons/hicolor 2>/dev/null || true
+fi
+if command -v update-desktop-database >/dev/null 2>&1; then
+  update-desktop-database -q /usr/share/applications 2>/dev/null || true
+fi
+
+# Registro automático del modelo en VS Code, como el usuario que invocó sudo
+# (NUNCA como root: el archivo queda en su home y con su dueño)
+TARGET_USER="${SUDO_USER:-}"
+if [ -z "$TARGET_USER" ] && [ -n "${PKEXEC_UID:-}" ]; then
+  TARGET_USER="$(id -nu "$PKEXEC_UID" 2>/dev/null || true)"
+fi
+if [ -n "$TARGET_USER" ] && [ "$TARGET_USER" != "root" ]; then
+  T_HOME="$(getent passwd "$TARGET_USER" | cut -d: -f6)"
+  su -s /bin/sh -c "HOME='$T_HOME' node /opt/arena-bridge/vscode-register.js" "$TARGET_USER" || true
+else
+  echo "ℹ️  Para registrar el modelo en VS Code: node /opt/arena-bridge/vscode-register.js"
+fi
+
+echo ""
+echo "🌉 Arena Bridge 0.3 instalado:"
+echo "   1) Configurá el cerebro:  arena-bridge --setup"
+echo "   2) Levantalo:             menú de apps → Arena Bridge   (o: arena-bridge)"
+echo "   3) VS Code ya quedó registrado — Reload Window y elegí Arena Bridge 🧉"
+exit 0
